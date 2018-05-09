@@ -5,7 +5,7 @@ import akka.http.scaladsl.{Http, HttpExt}
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse, StatusCodes, Uri}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
-import com.foobar.models.SourceModel
+import com.foobar.models.{NewsModel, SourceModel}
 import org.json4s.{DefaultFormats, native}
 import org.slf4j.LoggerFactory
 
@@ -33,4 +33,15 @@ class HttpUtil(httpExt: HttpExt)(implicit actorSystem: ActorSystem, materializer
         Future.failed(new Exception(s"Failed to get Actual response:$code"))
     }
   }
+
+  def responseToNewsModel(response: HttpResponse): Future[NewsModel] = {
+    response.status match {
+      case StatusCodes.OK =>
+        Unmarshal(response.entity).to[NewsModel]
+      case code =>
+        logger.error(s"Unable to get response:$code")
+        Future.failed(new Exception(s"Failed to get Actual response:$code"))
+    }
+  }
 }
+
