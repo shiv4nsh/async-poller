@@ -29,10 +29,12 @@ object Boot extends App {
 
   import AppEnv._
 
+  //Todo:Implement logging correctly
   val logger = LoggerFactory.getLogger(this.getClass)
 
   val httpUtil = new HttpUtil(Http())
 
+  //Todo: Move to the Config
   val token = "7cb5c37a7a1d40758167a1097a29bff9"
   val sourcesURL = s"https://newsapi.org/v2/sources?apiKey=$token"
   val NUMBER_OF_SOURCES = 10
@@ -47,7 +49,7 @@ object Boot extends App {
     case Success(data) => data.sources.take(NUMBER_OF_SOURCES).foreach { source =>
       val newsUrl = newsApiUrl(source.id)
       val newsFectingActor = actorSystem.actorOf(NewsFetchingActor.props(httpUtil)(newsUrl), source.id)
-      val cancellable = actorSystem.scheduler.schedule(
+      actorSystem.scheduler.schedule(
         0 milliseconds,
         intervalTime,
         newsFectingActor,
