@@ -1,16 +1,20 @@
 package com.foobar.actor
 
 import akka.actor.{Actor, Props}
+import akka.http.scaladsl.model.Uri
 import com.foobar.http.HttpUtil
+
 import scala.concurrent.ExecutionContext.Implicits.global
+
 /**
   * @author Shivansh <shiv4nsh@gmail.com>
   * @since 10/5/18
   */
-class NewsFetchingActor(httpUtil: HttpUtil)(url: String) extends Actor {
+class NewsFetchingActor(httpUtil: HttpUtil)(url: Uri) extends Actor {
 
   override def receive: Receive = {
     case Fetch =>
+      println(s"URl:$url")
       val response = httpUtil.request(url)
       val extractedResponse = response.flatMap(httpUtil.responseToNewsModel)
       extractedResponse.foreach(_.articles.map { article =>
@@ -23,6 +27,6 @@ class NewsFetchingActor(httpUtil: HttpUtil)(url: String) extends Actor {
 case object Fetch
 
 object NewsFetchingActor {
-  def props(httpUtil: HttpUtil)(url: String): Props = Props(new NewsFetchingActor(httpUtil)(url))
+  def props(httpUtil: HttpUtil)(url: Uri): Props = Props(new NewsFetchingActor(httpUtil)(url))
 }
 

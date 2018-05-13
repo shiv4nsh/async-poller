@@ -34,16 +34,11 @@ object Boot extends App {
 
   val httpUtil = new HttpUtil(Http())
 
-  //Todo: Move to the Config
-  val token = "7cb5c37a7a1d40758167a1097a29bff9"
-  val sourcesURL = s"https://newsapi.org/v2/sources?apiKey=$token"
-  val NUMBER_OF_SOURCES = 10
-  val intervalTime = 10 seconds
+  import com.foobar.config.AppConfig._
 
-  def newsApiUrl(source: String) = s"https://newsapi.org/v2/top-headlines?sources=$source&apiKey=4463838f6daf4f53a36605feb6b1a7b9"
+  def newsApiUrl(source: String): Uri = Uri(newsApiBaseURL).withQuery(Uri.Query(Map("apiKey" -> token,"sources"->source)))
 
-
-  val url = Uri(sourcesURL)
+  val url = Uri(sourcesURL).withQuery(Uri.Query(Map("apiKey" -> token)))
   val response = httpUtil.request(url).flatMap(httpUtil.responseToSourceModel)
   response.onComplete({
     case Success(data) => data.sources.take(NUMBER_OF_SOURCES).foreach { source =>
@@ -51,7 +46,7 @@ object Boot extends App {
       val newsFectingActor = actorSystem.actorOf(NewsFetchingActor.props(httpUtil)(newsUrl), source.id)
       actorSystem.scheduler.schedule(
         0 milliseconds,
-        intervalTime,
+        intervalTimeInSeconds seconds,
         newsFectingActor,
         Fetch)
     }
