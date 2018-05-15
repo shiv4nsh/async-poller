@@ -15,11 +15,10 @@ class NewsFetchingActor(httpUtil: HttpUtil)(url: Uri) extends Actor {
   override def receive: Receive = {
     case Fetch =>
       println(s"URl:$url")
-      val response = httpUtil.request(url)
-      val extractedResponse = response.flatMap(httpUtil.responseToNewsModel)
+      val extractedResponse = httpUtil.requestForNews(url)
       extractedResponse.foreach(_.articles.map { article =>
         s"Source:${article.source}\nTitle:${article.title}"
-      }.foreach(println))
+      }.foreach(System.out.println))
 
   }
 }
