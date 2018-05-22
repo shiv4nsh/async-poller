@@ -14,4 +14,5 @@ object AppConfig {
   val newsApiBaseURL = config.getString("newsApiUrl")
   val NUMBER_OF_SOURCES = config.getInt("numberOfSources")
   val intervalTimeInSeconds = config.getInt("intervalTime")
+  val displayIntervalTime=config.getInt("displayIntervalTime")
 }
